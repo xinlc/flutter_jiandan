@@ -1,0 +1,14 @@
+.DS_Store
+
+.dart_tool/
+.packages
+.pub/
+.flutter-plugins
+
+.atom/
+.idea
+.vscode/
+
+build/
+ios/.generated/
+packages
