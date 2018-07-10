@@ -71,6 +71,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.1.2"
+  english_words:
+    dependency: "direct main"
+    description:
+      name: english_words
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.1.0"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -103,7 +110,7 @@ packages:
     source: hosted
     version: "0.13.3+1"
   http:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: http
       url: "https://pub.flutter-io.cn"

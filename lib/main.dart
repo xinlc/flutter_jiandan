@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
+import 'pages/main_page.dart';
 
-void main() => runApp(new MyApp());
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
-      title: 'Welcome to Flutter',
-      home: new Scaffold(
-        appBar: new AppBar(
-          title: new Text('Welcome to Flutter'),
-        ),
-        body: new Center(
-          child: new Text('Hello World'),
-        ),
+    return MaterialApp(
+      title: '煎蛋',
+      theme: ThemeData(
+//        primaryColor: Colors.white,
+        primaryColor: Color(0xFF63CA6C),
       ),
+      home: MainPage(),
     );
+
   }
 }
+
