@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_jiandan/models/meizi.dart';
 
 class MeiziGridItem extends StatelessWidget {
+
   MeiziGridItem({
     @required this.meizi,
     @required this.onTapped,
