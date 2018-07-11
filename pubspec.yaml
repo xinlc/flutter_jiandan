@@ -20,6 +20,7 @@ dependencies:
 #  shared_preferences: ^0.4.2
   http: ^0.11.3+16
   event_bus: ^1.0.1
+  url_launcher: ^3.0.0
 
 dev_dependencies:
   flutter_test:
@@ -44,6 +45,9 @@ flutter:
 
   assets:
     - assets/images/1x1_transparent.png
+    - assets/images/cover_img.jpg
+    - assets/images/ic_arrow_right.png
+    - assets/images/ic_avatar_default.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.io/assets-and-images/#resolution-aware.

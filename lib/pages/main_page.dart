@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_jiandan/pages/meizi/meizi_page.dart';
+import 'package:flutter_jiandan/widgets/drawer.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage();
@@ -13,10 +14,11 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('首页', style: TextStyle(color: Colors.white)),
+        title: Text('妹子', style: TextStyle(color: Colors.white)),
         iconTheme: IconThemeData(color: Colors.white),
       ),
       body: MeiziPage(),
+      drawer: MyDrawer(),
     );
   }
 }

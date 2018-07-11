@@ -5,8 +5,7 @@ import 'package:flutter_jiandan/models/meizi.dart';
 import 'package:flutter_jiandan/pages/meizi/meizi_grid_item.dart';
 import 'package:flutter_jiandan/utils/http_utils.dart';
 import 'package:flutter_jiandan/constants/api.dart';
-
-
+import 'package:url_launcher/url_launcher.dart';
 
 class MeiziPage extends StatefulWidget {
   @override
@@ -18,7 +17,6 @@ class MeiziPageState extends State<MeiziPage> {
   int curPage = 1;
   int pageCount = 1;
   ScrollController _controller = ScrollController();
-
 
   MeiziPageState() {
     _controller.addListener(() {
@@ -35,24 +33,25 @@ class MeiziPageState extends State<MeiziPage> {
   }
 
   void _openDetails(BuildContext context, Meizi meizi) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('提示'),
-          content: Text('hello'),
-          actions: <Widget>[
-            FlatButton(
-              child: Text('确定'),
-              onPressed: () {
-                print('确定');
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      }
-    );
+    _launchInBrowser(meizi.url);
+//    showDialog(
+//      context: context,
+//      builder: (context) {
+//        return AlertDialog(
+//          title: Text('提示'),
+//          content: Text('hello'),
+//          actions: <Widget>[
+//            FlatButton(
+//              child: Text('确定'),
+//              onPressed: () {
+//                print('确定');
+//                Navigator.of(context).pop();
+//              },
+//            ),
+//          ],
+//        );
+//      }
+//    );
   }
 
   void _fetchMeizi(bool isLoadMore) {
@@ -68,6 +67,10 @@ class MeiziPageState extends State<MeiziPage> {
         setState(() {
           pageCount = map['page_count'];
 
+          if (isLoadMore == false) {
+            meiziList.clear();
+          }
+
           for (var comment in comments) {
             var pics = comment['pics'];
             Meizi meizi = new Meizi(title: comment['comment_date'].toString(), url: pics[0]);
@@ -76,6 +79,14 @@ class MeiziPageState extends State<MeiziPage> {
         });
       }
     });
+  }
+
+  Future<Null> _launchInBrowser(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url, forceSafariVC: false, forceWebView: false);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 
   Future<Null> _pullToRefresh() async {
