@@ -14,7 +14,7 @@ Future<String> getRequest(Uri uri) async {
 
 
 class HttpUtils {
-  static void get(String url, Function callback, {Map<String, String> params, Function errorCallback}) async {
+  static Future<dynamic> get(String url, {Function callback, Map<String, String> params, Function errorCallback}) async {
     if (params != null && params.isNotEmpty) {
       StringBuffer sb = new StringBuffer("?");
       params.forEach((key, value) {
@@ -29,10 +29,14 @@ class HttpUtils {
       http.Response res = await http.get(url);
       if (callback != null) {
         callback(res.body);
+      } else {
+        return res.body;
       }
     } catch (exception) {
       if (errorCallback != null) {
         errorCallback(exception);
+      } else {
+        throw exception;
       }
     }
   }

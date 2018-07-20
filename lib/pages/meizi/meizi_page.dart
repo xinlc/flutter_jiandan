@@ -1,36 +1,42 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_jiandan/models/meizi.dart';
 import 'package:flutter_jiandan/pages/meizi/meizi_grid_item.dart';
-import 'package:flutter_jiandan/utils/http_utils.dart';
-import 'package:flutter_jiandan/constants/api.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_redux/flutter_redux.dart';
+import 'package:flutter_jiandan/redux/app/app_state.dart';
+import 'package:flutter_jiandan/pages/meizi/meizi_page_view_model.dart';
+import 'package:flutter_jiandan/widgets/loading_view.dart';
+import 'package:flutter_jiandan/widgets/platform_adaptive_progress_indicator.dart';
+import 'package:flutter_jiandan/widgets/info_message_view.dart';
 
-class MeiziPage extends StatefulWidget {
+
+class MeiziPage extends StatelessWidget {
+
   @override
-  State<StatefulWidget>createState() => MeiziPageState();
+  Widget build(BuildContext context) {
+    return StoreConnector<AppState, MeiziPageViewModel>(
+      converter: (store) => MeiziPageViewModel.fromStore(store),
+      builder: (_, viewModel) => MeiziPageContent(viewModel),
+    );
+  }
 }
 
-class MeiziPageState extends State<MeiziPage> {
-  List<Meizi> meiziList = [];
-  int curPage = 1;
-  int pageCount = 1;
-  ScrollController _controller = ScrollController();
-
-  MeiziPageState() {
+class MeiziPageContent extends StatelessWidget {
+  MeiziPageContent(this.viewModel) {
     _controller.addListener(() {
       var maxScroll = _controller.position.maxScrollExtent;
       var pixels = _controller.position.pixels;
 
-      if (maxScroll == pixels && curPage < pageCount) {
+      if (maxScroll == pixels && viewModel.curPage < viewModel.pageCount) {
         // scroll to bottom, get next page data
         print('load more ... ');
-        curPage ++;
-        _fetchMeizi(true);
+        viewModel.loadMore();
       }
     });
   }
+  final MeiziPageViewModel viewModel;
+  ScrollController _controller = ScrollController();
 
   void _openDetails(BuildContext context, Meizi meizi) {
     _launchInBrowser(meizi.url);
@@ -54,33 +60,6 @@ class MeiziPageState extends State<MeiziPage> {
 //    );
   }
 
-  void _fetchMeizi(bool isLoadMore) {
-    String url = Api.MEIZI_LIST.replaceFirst('@page', curPage.toString());
-
-    print('meizi_list_url -> $url');
-
-    HttpUtils.get(url, (data) {
-      if (data != null) {
-        Map<String, dynamic> map = json.decode(data);
-        var comments = map['comments'];
-
-        setState(() {
-          pageCount = map['page_count'];
-
-          if (isLoadMore == false) {
-            meiziList.clear();
-          }
-
-          for (var comment in comments) {
-            var pics = comment['pics'];
-            Meizi meizi = new Meizi(title: comment['comment_date'].toString(), url: pics[0]);
-            meiziList.add(meizi);
-          }
-        });
-      }
-    });
-  }
-
   Future<Null> _launchInBrowser(String url) async {
     if (await canLaunch(url)) {
       await launch(url, forceSafariVC: false, forceWebView: false);
@@ -89,44 +68,43 @@ class MeiziPageState extends State<MeiziPage> {
     }
   }
 
-  Future<Null> _pullToRefresh() async {
-    curPage = 1;
-    _fetchMeizi(false);
-    return null;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchMeizi(false);
-  }
-
   @override
   Widget build(BuildContext context) {
     var isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
     var crossAxisChildCount = isPortrait ? 2 : 4;
 
-    return Container(
-      child: RefreshIndicator(
-        child: Scrollbar(
-          child: GridView.builder(
-            controller: _controller,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: crossAxisChildCount,
-              childAspectRatio: 2 / 3,
+    print('1111111111');
+    print(viewModel.curPage);
+    return LoadingView(
+      onMount: viewModel.refresh,
+      status: viewModel.status,
+      loadingContent: const PlatformAdaptiveProgressIndicator(),
+      errorContent: ErrorView(
+        description: 'Error loading meizi list.',
+        onRetry: viewModel.refresh,
+      ),
+      successContent: Container(
+        child: RefreshIndicator(
+          child: Scrollbar(
+            child: GridView.builder(
+              controller: _controller,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisChildCount,
+                childAspectRatio: 2 / 3,
+              ),
+              itemCount: viewModel.meiziList.length,
+              itemBuilder: (BuildContext context, int index) {
+                var meizi = viewModel.meiziList[index];
+                return MeiziGridItem(
+                  meizi: meizi,
+                  onTapped: () => _openDetails(context, meizi),
+                );
+              },
             ),
-            itemCount: meiziList.length,
-            itemBuilder: (BuildContext context, int index) {
-              var meizi = meiziList[index];
-              return MeiziGridItem(
-                meizi: meizi,
-                onTapped: () => _openDetails(context, meizi),
-              );
-            },
           ),
-        ),
-        onRefresh: _pullToRefresh,
-      )
+          onRefresh: viewModel.refresh,
+        )
+      ),
     );
   }
 }
